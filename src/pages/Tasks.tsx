@@ -1,3 +1,4 @@
+
 import React, { useState, useMemo, useEffect } from 'react';
 import { 
   Card, 
@@ -17,7 +18,6 @@ import DonutChart from '@/components/charts/DonutChart';
 import PriorityChart from '@/components/charts/PriorityChart';
 import { CompletionStatus, PriorityStatus, RecurrencePattern, WeekendPreference, SleepSchedule } from '@/types';
 import { useToast } from '@/hooks/use-toast';
-import AiChatSuggestions from '@/components/dashboard/AiChatSuggestions';
 import {
   Dialog,
   DialogContent,
@@ -775,7 +775,7 @@ const Tasks = () => {
         </div>
       </div>
 
-      <AiChatSuggestions />
+      {/* Removed AiChatSuggestions reference */}
     </div>
   );
 };

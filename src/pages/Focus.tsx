@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { 
   Card, 
@@ -30,13 +29,10 @@ import {
 } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import AiChatAssistant from '@/components/dashboard/AiChatAssistant';
-import TimeManagementAI from '@/components/focus/TimeManagementAI';
 import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import { useTasks } from '@/context/TaskContext';
 
-// Mock Musify data for UI display
 const musifyPlaylists = [
   { id: '1', name: 'Focus Flow', songs: 24, image: 'https://i.scdn.co/image/ab67706f00000002e4eadd417a05b2546e866934' },
   { id: '2', name: 'Deep Focus', songs: 18, image: 'https://i.scdn.co/image/ab67706f00000002fe24d7084be472288cd6ee6c' },
@@ -60,26 +56,22 @@ const Focus = () => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [selectedPlaylist, setSelectedPlaylist] = useState<string | null>(null);
   
-  // Timer states
-  const [timeLeft, setTimeLeft] = useState(25 * 60); // 25 minutes in seconds
+  const [timeLeft, setTimeLeft] = useState(25 * 60);
   const [isRunning, setIsRunning] = useState(false);
   const [pomodoroCount, setPomodoroCount] = useState(0);
   const [customTime, setCustomTime] = useState(25);
   const interval = useRef<number | null>(null);
   
-  // Timer session tracking
   const [currentSession, setCurrentSession] = useState<{
     startTime: string;
     startTimestamp: number;
     category: string;
   } | null>(null);
   
-  // Stopwatch states
   const [stopwatchTime, setStopwatchTime] = useState(0);
   const [isStopwatchRunning, setIsStopwatchRunning] = useState(false);
   const stopwatchInterval = useRef<number | null>(null);
   
-  // Task states
   const [focusTasks, setFocusTasks] = useState([
     { id: '1', title: 'Complete math assignment', completed: false },
     { id: '2', title: 'Review lecture notes', completed: false },
@@ -87,14 +79,11 @@ const Focus = () => {
   ]);
   const [newTask, setNewTask] = useState('');
   
-  // Sound states
   const [volume, setVolume] = useState(50);
   
   useEffect(() => {
-    // Fetch tasks from main task list that are not completed
     const pendingTasks = tasks.filter(task => !task.completed);
     if (pendingTasks.length > 0) {
-      // Map to focus task format (just keeping it simple)
       const mappedTasks = pendingTasks.slice(0, 5).map(task => ({
         id: task.id,
         title: task.title,
@@ -104,10 +93,8 @@ const Focus = () => {
     }
   }, [tasks]);
   
-  // Effect for timer
   useEffect(() => {
     if (isRunning) {
-      // Record session start if not already started
       if (!currentSession) {
         const now = new Date();
         const formattedTime = now.getHours().toString().padStart(2, '0') + ':' + 
@@ -123,12 +110,10 @@ const Focus = () => {
       interval.current = window.setInterval(() => {
         setTimeLeft((prevTime) => {
           if (prevTime <= 1) {
-            // Time is up
             clearInterval(interval.current!);
             setIsRunning(false);
             notifyTimerEnd();
             
-            // Record completed session
             if (currentSession) {
               const durationInMinutes = Math.round((Date.now() - currentSession.startTimestamp) / 60000);
               addTimeEntry({
@@ -141,7 +126,6 @@ const Focus = () => {
               setCurrentSession(null);
             }
             
-            // Increment completed pomodoro count
             if (activeTab === 'pomodoro') {
               setPomodoroCount(prev => prev + 1);
             }
@@ -154,10 +138,8 @@ const Focus = () => {
     } else if (interval.current) {
       clearInterval(interval.current);
       
-      // If session was stopped manually, record partial completion
       if (currentSession && timeLeft > 0) {
         const durationInMinutes = Math.round((Date.now() - currentSession.startTimestamp) / 60000);
-        // Only record if at least 1 minute passed
         if (durationInMinutes >= 1) {
           addTimeEntry({
             startTime: currentSession.startTime,
@@ -177,10 +159,8 @@ const Focus = () => {
     };
   }, [isRunning, activeTab, addTimeEntry, currentSession, timeLeft]);
   
-  // Effect for stopwatch
   useEffect(() => {
     if (isStopwatchRunning) {
-      // Record session start if not already started
       if (!currentSession) {
         const now = new Date();
         const formattedTime = now.getHours().toString().padStart(2, '0') + ':' + 
@@ -199,10 +179,8 @@ const Focus = () => {
     } else if (stopwatchInterval.current) {
       clearInterval(stopwatchInterval.current);
       
-      // Record completed stopwatch session
       if (currentSession && stopwatchTime > 0) {
         const durationInMinutes = Math.round(stopwatchTime / 60);
-        // Only record if at least 1 minute passed
         if (durationInMinutes >= 1) {
           addTimeEntry({
             startTime: currentSession.startTime,
@@ -230,7 +208,6 @@ const Focus = () => {
         : "Your focus session has ended.",
     });
     
-    // Play a sound when timer ends
     const audio = new Audio('/notification.mp3');
     audio.volume = volume / 100;
     audio.play().catch(e => console.log('Audio play failed:', e));
@@ -256,10 +233,8 @@ const Focus = () => {
   const handleReset = () => {
     setIsRunning(false);
     
-    // If there's an active session, record it as incomplete
     if (currentSession) {
       const durationInMinutes = Math.round((Date.now() - currentSession.startTimestamp) / 60000);
-      // Only record if at least 1 minute passed
       if (durationInMinutes >= 1) {
         addTimeEntry({
           startTime: currentSession.startTime,
@@ -287,13 +262,11 @@ const Focus = () => {
     setActiveTab(value);
     setIsRunning(false);
     
-    // If there's an active session, record it as incomplete
     if (currentSession) {
       const durationInMinutes = activeTab === 'stopwatch' 
         ? Math.round(stopwatchTime / 60)
         : Math.round((Date.now() - currentSession.startTimestamp) / 60000);
       
-      // Only record if at least 1 minute passed
       if (durationInMinutes >= 1) {
         addTimeEntry({
           startTime: currentSession.startTime,
@@ -316,7 +289,7 @@ const Focus = () => {
   
   const handleCustomTimeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = parseInt(e.target.value) || 1;
-    setCustomTime(Math.min(Math.max(value, 1), 120)); // Limit between 1-120 minutes
+    setCustomTime(Math.min(Math.max(value, 1), 120));
     setTimeLeft(Math.min(Math.max(value, 1), 120) * 60);
   };
   
@@ -327,10 +300,8 @@ const Focus = () => {
   const handleStopwatchReset = () => {
     setIsStopwatchRunning(false);
     
-    // If there's an active session, record it as incomplete
     if (currentSession) {
       const durationInMinutes = Math.round(stopwatchTime / 60);
-      // Only record if at least 1 minute passed
       if (durationInMinutes >= 1) {
         addTimeEntry({
           startTime: currentSession.startTime,
@@ -399,7 +370,6 @@ const Focus = () => {
         <p className="text-gray-600">Stay productive with timers, trackers, and focus tools</p>
       </div>
       
-      {/* Musify mini player - fixed at the bottom */}
       {isMusifyConnected && isPlaying && (
         <div className="fixed bottom-0 left-0 right-0 bg-gray-900 text-white z-30 p-3 shadow-lg">
           <div className="container mx-auto flex items-center justify-between max-w-7xl">
@@ -440,7 +410,6 @@ const Focus = () => {
             </div>
             
             <div className="flex items-center md:gap-4">
-              {/* Mobile play controls */}
               <Button 
                 size="icon" 
                 className="md:hidden bg-white text-black hover:bg-gray-200 rounded-full h-8 w-8 mr-2"
@@ -466,7 +435,6 @@ const Focus = () => {
       )}
       
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-16">
-        {/* Timer Column */}
         <div className="lg:col-span-2 space-y-8">
           <Card>
             <CardHeader>
@@ -483,7 +451,6 @@ const Focus = () => {
                   <TabsTrigger value="custom">Custom</TabsTrigger>
                 </TabsList>
                 
-                {/* Pomodoro Timer */}
                 <TabsContent value="pomodoro" className="mt-6">
                   <div className="flex flex-col items-center space-y-8">
                     <div className="text-center">
@@ -534,7 +501,6 @@ const Focus = () => {
                   </div>
                 </TabsContent>
                 
-                {/* Stopwatch */}
                 <TabsContent value="stopwatch" className="mt-6">
                   <div className="flex flex-col items-center space-y-8">
                     <div className="text-center">
@@ -573,7 +539,6 @@ const Focus = () => {
                   </div>
                 </TabsContent>
                 
-                {/* Custom Timer */}
                 <TabsContent value="custom" className="mt-6">
                   <div className="flex flex-col items-center space-y-8">
                     <div className="text-center">
@@ -633,7 +598,6 @@ const Focus = () => {
             </CardContent>
           </Card>
           
-          {/* Focus Session Tasks */}
           <Card>
             <CardHeader>
               <CardTitle>Focus Tasks</CardTitle>
@@ -689,9 +653,7 @@ const Focus = () => {
           </Card>
         </div>
         
-        {/* Focus Tips and Tools Column */}
         <div className="space-y-6">
-          {/* Musify Integration */}
           <Card>
             <CardHeader className="pb-3">
               <div className="flex items-center justify-between">
@@ -852,12 +814,6 @@ const Focus = () => {
           </Card>
         </div>
       </div>
-
-      {/* Regular AI Chat Assistant */}
-      <AiChatAssistant />
-      
-      {/* Time Management AI Assistant */}
-      <TimeManagementAI />
     </div>
   );
 };
