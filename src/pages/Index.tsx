@@ -17,9 +17,7 @@ import DonutChart from '@/components/charts/DonutChart';
 import PriorityChart from '@/components/charts/PriorityChart';
 import WeatherWidget from '@/components/WeatherWidget';
 import LiveClock from '@/components/dashboard/LiveClock';
-import AiChatAssistant from '@/components/dashboard/AiChatAssistant';
 import SleepAnalysis from '@/components/dashboard/SleepAnalysis';
-import VoiceAssistant from '@/components/dashboard/VoiceAssistant';
 import { TimeSlot as TimeSlotType, WeatherData } from '@/types';
 import { useToast } from '@/hooks/use-toast';
 import { useTasks } from '@/context/TaskContext';
@@ -546,10 +544,6 @@ const Dashboard = () => {
           <WeatherWidget weatherData={weatherData} />
         </div>
       </div>
-
-      <AiChatAssistant />
-      
-      <VoiceAssistant />
     </div>
   );
 };
